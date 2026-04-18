@@ -1,0 +1,579 @@
+---
+title: "Replication of Reis et al. (2019): Risk of Bias"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(tibble)
+  library(stringr)
+  library(gt)
+  library(readxl)
+  library(tidyr)
+  library(scales)
+  library(knitr)
+  library(htmltools)
+  library(readr)
+  library(forcats)
+  library(grid)
+})
+
+fig_dir <- "report_figures"
+tab_dir <- "report_tables"
+dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(tab_dir, showWarnings = FALSE, recursive = TRUE)
+
+save_table_csv <- function(df, filename) {
+  file <- file.path(tab_dir, filename)
+  readr::write_csv(df, file)
+  file
+}
+
+img_tag <- function(path, width = "100%") {
+  as.character(
+    htmltools::tags$img(
+      src = path,
+      style = paste0("width:", width, ";height:auto;display:block;margin:0 auto;")
+    )
+  )
+}
+
+save_gg_png <- function(plot, filename, width_in = 9, height_in = 5.5, dpi = 600) {
+  file <- file.path(fig_dir, filename)
+  ggplot2::ggsave(
+    filename = file,
+    plot = plot,
+    width = width_in,
+    height = height_in,
+    units = "in",
+    dpi = dpi,
+    bg = "white"
+  )
+  file
+}
+
+rob_colors <- c(
+  "Low" = "#80CBC4",
+  "Unclear" = "#FFD54F",
+  "High" = "#E57373"
+)
+
+norm_rob3 <- function(x) {
+  y <- tolower(stringr::str_squish(as.character(x)))
+  map <- c(
+    "low" = "Low",
+    "unclear" = "Unclear",
+    "high" = "High",
+    "l" = "Low",
+    "h" = "High",
+    "unknown" = "Unclear",
+    "some concerns" = "Unclear",
+    "n/a" = "Unclear",
+    "na" = "Unclear",
+    "baixo" = "Low",
+    "baixa" = "Low",
+    "incerto" = "Unclear",
+    "incerta" = "Unclear",
+    "alto" = "High",
+    "alta" = "High"
+  )
+  out <- unname(map[y])
+  out[is.na(out) & !is.na(y)] <- NA_character_
+  factor(out, levels = c("Low", "Unclear", "High"), ordered = TRUE)
+}
+
+build_rob_data <- function(xlsx_path, sheet = NULL) {
+  dat <- readxl::read_excel(xlsx_path, sheet = sheet, .name_repair = "unique")
+  names(dat) <- names(dat) |> stringr::str_squish()
+
+  if (!"Study" %in% names(dat)) {
+    stop("'", xlsx_path, "' needs a 'Study' column.")
+  }
+
+  dat <- dat |>
+    mutate(
+      Study = str_squish(str_replace_all(as.character(Study), "_", " ")),
+      across(where(is.character), str_squish)
+    ) |>
+    filter(!is.na(Study) & Study != "")
+
+  domain_cols <- setdiff(names(dat), "Study")
+  overall_pos <- which(tolower(domain_cols) == "overall")
+  if (length(overall_pos) == 1) {
+    domain_cols <- c(domain_cols[-overall_pos], domain_cols[overall_pos])
+  }
+
+  dat <- dat |>
+    mutate(across(all_of(domain_cols), norm_rob3))
+
+  long <- dat |>
+    pivot_longer(all_of(domain_cols), names_to = "Domain_raw", values_to = "Judgment") |>
+    mutate(
+      Domain = factor(gsub("\\.", " ", Domain_raw), levels = gsub("\\.", " ", domain_cols))
+    )
+
+  study_order <- dat$Study
+  long <- long |>
+    mutate(Study = factor(Study, levels = rev(unique(study_order))))
+
+  summary_df <- long |>
+    filter(!is.na(Judgment)) |>
+    count(Domain, Judgment, name = "n", .drop = FALSE) |>
+    group_by(Domain) |>
+    mutate(pct = if (sum(n) > 0) n / sum(n) else 0) |>
+    ungroup()
+
+  list(
+    data = dat,
+    long = long,
+    summary = summary_df,
+    n_domains = nlevels(summary_df$Domain),
+    n_studies = nlevels(long$Study)
+  )
+}
+
+make_summary_plot <- function(summary_df, pal) {
+  lv <- levels(droplevels(summary_df$Judgment))
+  vals <- pal[names(pal) %in% lv]
+  vals <- vals[lv]
+
+  ggplot(summary_df, aes(x = pct, y = Domain, fill = Judgment)) +
+    geom_col(color = "grey60", linewidth = 0.2, width = 0.90) +
+    scale_x_continuous(
+      labels = scales::percent_format(accuracy = 1),
+      expand = expansion(mult = c(0, 0.04))
+    ) +
+    scale_fill_manual(values = vals, breaks = lv, labels = lv, name = "Judgment") +
+    labs(x = NULL, y = NULL) +
+    theme_minimal(base_size = 13) +
+    theme(
+      legend.position = "right",
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor = element_blank()
+    ) +
+    geom_text(
+      aes(label = ifelse(pct >= 0.03, scales::percent(pct, accuracy = 1), "")),
+      position = position_stack(vjust = 0.5),
+      size = 3
+    )
+}
+
+make_traffic_plot <- function(long_df, pal) {
+  lv <- levels(droplevels(long_df$Judgment))
+  vals <- pal[names(pal) %in% lv]
+  vals <- vals[lv]
+
+  ggplot(long_df, aes(x = Domain, y = Study, fill = Judgment)) +
+    geom_tile(color = "white", linewidth = 0.7, width = 0.995, height = 0.995) +
+    scale_fill_manual(values = vals, breaks = lv, labels = lv, name = "Judgment") +
+    labs(x = NULL, y = NULL) +
+    theme_minimal(base_size = 13) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+      legend.position = "right",
+      panel.grid = element_blank()
+    )
+}
+
+make_combined_summary_plot <- function(orig_summary, rep_summary, pal) {
+
+sum_o <- orig_summary |>
+  mutate(
+    Panel = factor(
+      "Original study",
+      levels = c("Original study", "Direct replication")
+    )
+  )
+
+sum_r <- rep_summary |>
+  mutate(
+    Panel = factor(
+      "Direct replication",
+      levels = c("Original study", "Direct replication")
+    )
+  )
+
+  comb <- bind_rows(sum_o, sum_r)
+
+  ggplot(comb, aes(x = pct, y = forcats::fct_rev(Domain), fill = Judgment)) +
+
+    facet_grid(
+      Panel ~ .,
+      scales = "free_y",
+      space = "free_y"
+    ) +
+
+    geom_col(color = "grey60", linewidth = 0.2, width = 0.90) +
+
+    scale_x_continuous(
+      labels = percent_format(accuracy = 1),
+      expand = expansion(mult = c(0, 0.04))
+    ) +
+
+    scale_fill_manual(
+      values = pal,
+      breaks = c("Low", "Unclear", "High"),
+      name = "Judgment"
+    ) +
+
+    geom_text(
+      aes(label = ifelse(pct >= 0.03,
+                         percent(pct, accuracy = 1),
+                         "")),
+      position = position_stack(vjust = 0.5),
+      size = 3
+    ) +
+
+    labs(x = NULL, y = NULL) +
+
+    theme_minimal(base_size = 13) +
+
+    theme(
+      legend.position = "right",
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor = element_blank(),
+
+      strip.text.y = element_text(
+        face = "bold",
+        size = 13
+      ),
+
+      strip.background = element_blank(),
+      panel.spacing.y = unit(0.8, "lines")
+    )
+}
+
+make_diff_heatmap <- function(orig_comp, rep_comp) {
+  common <- intersect(orig_comp$data$Study, rep_comp$data$Study)
+  if (!length(common)) stop("No common studies between comparison sheets.")
+
+  orig <- orig_comp$data |>
+    dplyr::filter(Study %in% common) |>
+    dplyr::mutate(.ord = match(Study, orig_comp$data$Study)) |>
+    dplyr::arrange(.ord) |>
+    dplyr::select(-.ord)
+
+  repd <- rep_comp$data |>
+    dplyr::filter(Study %in% common) |>
+    dplyr::mutate(.ord = match(Study, orig$Study)) |>
+    dplyr::arrange(.ord) |>
+    dplyr::select(-.ord)
+
+  dom <- intersect(
+    setdiff(names(orig), "Study"),
+    setdiff(names(repd), "Study")
+  )
+
+  if (!length(dom)) stop("No shared domains.")
+
+  orig <- orig |>
+    dplyr::mutate(dplyr::across(all_of(dom), ~ factor(.x, levels = c("Low", "Unclear", "High"), ordered = TRUE)))
+  repd <- repd |>
+    dplyr::mutate(dplyr::across(all_of(dom), ~ factor(.x, levels = c("Low", "Unclear", "High"), ordered = TRUE)))
+
+  code3 <- function(f) as.integer(f) - 1L
+
+  diff_mat <- mapply(
+    FUN = function(a, b) {
+      ao <- code3(orig[[a]])
+      br <- code3(repd[[b]])
+      ifelse(is.na(ao) | is.na(br), NA_real_, br - ao)
+    },
+    a = dom,
+    b = dom,
+    SIMPLIFY = FALSE
+  ) |>
+    as.data.frame()
+
+  names(diff_mat) <- dom
+  diff_mat <- dplyr::bind_cols(tibble::tibble(Study = orig$Study), diff_mat)
+
+  long_diff <- diff_mat |>
+    tidyr::pivot_longer(-Study, names_to = "Domain", values_to = "Diff") |>
+    dplyr::mutate(
+      Domain = factor(Domain, levels = dom),
+      Study = factor(Study, levels = rev(orig$Study))
+    )
+
+  p_heat <- ggplot2::ggplot(
+    long_diff,
+    aes(x = Domain, y = Study, fill = Diff, label = ifelse(is.na(Diff), "", Diff))
+  ) +
+    ggplot2::geom_tile(color = "white", linewidth = 0.6, width = 0.995, height = 0.995, na.rm = FALSE) +
+    ggplot2::geom_text(size = 3.2, na.rm = TRUE) +
+    ggplot2::scale_fill_gradient2(
+      name = "Replication − Original",
+      low = "#4CAF50",
+      mid = "grey90",
+      high = "#E57373",
+      midpoint = 0,
+      limits = c(-2, 2),
+      breaks = -2:2,
+      guide = ggplot2::guide_colorbar(barheight = grid::unit(80, "pt"))
+    ) +
+    ggplot2::labs(x = NULL, y = NULL) +
+    ggplot2::theme_minimal(base_size = 13) +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1),
+      panel.grid = ggplot2::element_blank(),
+      legend.position = "right"
+    )
+
+  list(plot = p_heat, csv = diff_mat, domains = dom)
+}
+
+make_diff_stack <- function(diff_mat) {
+  dom <- setdiff(names(diff_mat), "Study")
+
+  long_diff <- diff_mat |>
+    tidyr::pivot_longer(-Study, names_to = "Domain", values_to = "Diff") |>
+    dplyr::mutate(
+      Domain = factor(Domain, levels = dom),
+      DiffF = factor(Diff, levels = -2:2, ordered = TRUE)
+    )
+
+  sum_diff <- long_diff |>
+    dplyr::filter(!is.na(DiffF)) |>
+    dplyr::count(Domain, DiffF, name = "n") |>
+    dplyr::group_by(Domain) |>
+    dplyr::mutate(pct = n / sum(n)) |>
+    dplyr::ungroup()
+
+  p_stack <- ggplot(sum_diff, aes(x = Domain, y = pct, fill = DiffF)) +
+    geom_col(color = "grey70", linewidth = 0.2, width = 0.9) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_fill_manual(
+      values = c("#2E7D32", "#81C784", "#BDBDBD", "#FF8A80", "#C62828"),
+      breaks = as.character(-2:2),
+      labels = c("−2", "−1", "0", "+1", "+2"),
+      name = "Change"
+    ) +
+    labs(x = NULL, y = NULL) +
+    theme_minimal(base_size = 13) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_blank(),
+      legend.position = "right"
+    ) +
+    geom_text(
+      aes(label = ifelse(pct >= 0.04, scales::percent(pct, accuracy = 1), "")),
+      position = position_stack(vjust = 0.5),
+      size = 3
+    )
+
+  list(plot = p_stack, csv = sum_diff)
+}
+
+calc_domain_metrics <- function(x, y) {
+  ok <- !is.na(x) & !is.na(y)
+  if (!any(ok)) {
+    return(c(agreement = NA_real_, PABAK = NA_real_, kappa = NA_real_, kappa_lin = NA_real_, kappa_quad = NA_real_))
+  }
+
+  lev3 <- c("Low", "Unclear", "High")
+  xf <- factor(as.character(x[ok]), levels = lev3, ordered = TRUE)
+  yf <- factor(as.character(y[ok]), levels = lev3, ordered = TRUE)
+  tab <- table(xf, yf)
+  N <- sum(tab)
+  Po <- sum(diag(tab)) / N
+  PABAK <- (3 * Po - 1) / 2
+  pr <- rowSums(tab) / N
+  pc <- colSums(tab) / N
+  Pe <- sum(pr * pc)
+  k_unw <- if (abs(1 - Pe) < 1e-12) NA_real_ else (Po - Pe) / (1 - Pe)
+
+  idx <- 0:2
+  D <- abs(outer(idx, idx, "-"))
+  Wlin <- 1 - D / 2
+  Wq <- 1 - (D / 2)^2
+  O <- tab / N
+  E <- outer(pr, pc)
+
+  kW <- function(W) {
+    Ow <- sum(W * O)
+    Ew <- sum(W * E)
+    if (abs(1 - Ew) < 1e-12) NA_real_ else (Ow - Ew) / (1 - Ew)
+  }
+
+  c(
+    agreement = Po,
+    PABAK = PABAK,
+    kappa = k_unw,
+    kappa_lin = kW(Wlin),
+    kappa_quad = kW(Wq)
+  )
+}
+
+make_agreement_table <- function(orig_comp, rep_comp) {
+  common <- intersect(orig_comp$data$Study, rep_comp$data$Study)
+  if (!length(common)) stop("No common studies between comparison sheets.")
+
+  orig <- orig_comp$data |>
+    dplyr::filter(Study %in% common) |>
+    dplyr::mutate(.ord = match(Study, orig_comp$data$Study)) |>
+    dplyr::arrange(.ord) |>
+    dplyr::select(-.ord)
+
+  repd <- rep_comp$data |>
+    dplyr::filter(Study %in% common) |>
+    dplyr::mutate(.ord = match(Study, orig$Study)) |>
+    dplyr::arrange(.ord) |>
+    dplyr::select(-.ord)
+
+  dom <- intersect(
+    setdiff(names(orig), "Study"),
+    setdiff(names(repd), "Study")
+  )
+
+  if (!length(dom)) {
+    stop("No shared RoB domains found for agreement table.")
+  }
+
+  metrics <- lapply(dom, function(d) {
+    m <- calc_domain_metrics(orig[[d]], repd[[d]])
+    tibble::tibble(
+      Category = d,
+      `Percent agreement` = as.numeric(m["agreement"]),
+      PABAK = as.numeric(m["PABAK"]),
+      `Cohen's κ (unweighted)` = as.numeric(m["kappa"]),
+      `Weighted κ (linear)` = as.numeric(m["kappa_lin"]),
+      `Weighted κ (quadratic)` = as.numeric(m["kappa_quad"])
+    )
+  }) |>
+    dplyr::bind_rows() |>
+    dplyr::mutate(across(where(is.numeric), ~ round(.x, 3)))
+
+  metrics
+}
+
+rob_original <- build_rob_data("Risk of bias_original.xlsx")
+rob_replication <- build_rob_data("Risk of bias_replication.xlsx")
+rob_original_comp <- build_rob_data("Risk of bias_original_comparison.xlsx")
+rob_replication_comp <- build_rob_data("Risk of bias_replication_comparison.xlsx")
+```
+
+# Overview
+
+This report summarises the comparison between the original review and the direct replication for SYRCLE risk-of-bias judgements. It includes the full traffic plots for each review, the domain-level summary shown in the manuscript, and the paired comparison analyses restricted to studies included in both reviews.
+
+# Direct replication
+
+The figure below shows the study-level risk-of-bias judgements for the direct replication.
+
+```{r rob-traffic-replication, results='asis'}
+traffic_rep_file <- save_gg_png(
+  make_traffic_plot(rob_replication$long, rob_colors),
+  "rob_traffic_replication.png",
+  width_in = 13.5,
+  height_in = max(8.5, rob_replication$n_studies * 0.28),
+  dpi = 600
+)
+cat(img_tag(traffic_rep_file, width = "100%"))
+```
+
+# Original study
+
+The figure below shows the study-level risk-of-bias judgements reconstructed from the original review.
+
+```{r rob-traffic-original, results='asis'}
+traffic_orig_file <- save_gg_png(
+  make_traffic_plot(rob_original$long, rob_colors),
+  "rob_traffic_original.png",
+  width_in = 13.5,
+  height_in = max(8.5, rob_original$n_studies * 0.28),
+  dpi = 600
+)
+cat(img_tag(traffic_orig_file, width = "100%"))
+```
+
+# Combined summary
+
+The summary below compares the distribution of low, unclear, and high risk-of-bias judgements across SYRCLE domains in the original review and in the direct replication. Unlike the paired comparison analyses shown later, this summary is based on the full datasets for each review.
+
+```{r rob-summary-combined, results='asis'}
+combined_plot <- make_combined_summary_plot(
+  rob_original$summary,
+  rob_replication$summary,
+  rob_colors
+)
+
+combined_file <- save_gg_png(
+  combined_plot,
+  "rob_summary_combined.png",
+  width_in = 11.5,
+  height_in = max(6, rob_original$n_domains * 0.55) + max(6, rob_replication$n_domains * 0.55) + 0.6,
+  dpi = 600
+)
+
+combined_csv <- bind_rows(
+  rob_original$summary %>% mutate(Dataset = "Original"),
+  rob_replication$summary %>% mutate(Dataset = "Replication")
+)
+save_table_csv(combined_csv, "rob_summary_combined.csv")
+
+cat(img_tag(combined_file, width = "95%"))
+```
+
+# Heatmap of differences
+
+The heatmap below compares paired judgements for studies included in both reviews. Scores were calculated as direct replication minus original review on the ordered scale low, unclear, and high. Positive values indicate that the replication assigned a higher risk judgement; negative values indicate a lower risk judgement.
+
+```{r rob-diff-heatmap, results='asis'}
+diff_out <- make_diff_heatmap(rob_original_comp, rob_replication_comp)
+diff_heat_file <- save_gg_png(
+  diff_out$plot,
+  "rob_diff_heatmap.png",
+  width_in = max(12, length(diff_out$domains) * 0.8),
+  height_in = max(8, nrow(diff_out$csv) * 0.35),
+  dpi = 600
+)
+save_table_csv(diff_out$csv, "rob_diff_matrix.csv")
+cat(img_tag(diff_heat_file, width = "100%"))
+```
+
+# Distribution of judgment changes
+
+The figure below summarises the distribution of paired judgement changes across SYRCLE domains for studies shared between the two reviews.
+
+```{r rob-diff-stack, results='asis'}
+stack_out <- make_diff_stack(diff_out$csv)
+diff_stack_file <- save_gg_png(
+  stack_out$plot,
+  "rob_diff_stacked.png",
+  width_in = max(11.5, (ncol(diff_out$csv) - 1) * 0.8),
+  height_in = 7.0,
+  dpi = 600
+)
+save_table_csv(stack_out$csv, "rob_diff_stacked.csv")
+cat(img_tag(diff_stack_file, width = "95%"))
+```
+
+# Agreement metrics
+
+The table below reports agreement between the original review and the direct replication for studies included in both datasets. The main summary measures are percent agreement, prevalence-adjusted bias-adjusted kappa (PABAK), and Cohen’s kappa.
+
+```{r rob-agreement}
+agreement_df <- make_agreement_table(rob_original_comp, rob_replication_comp)
+save_table_csv(agreement_df, "rob_agreement_metrics.csv")
+
+gt::gt(
+  agreement_df %>%
+    mutate(`Percent agreement` = scales::percent(`Percent agreement`, accuracy = 1))
+) %>%
+  gt::tab_header(title = gt::md("Agreement between **Original** and **Replication** (RoB domains)"))
+```

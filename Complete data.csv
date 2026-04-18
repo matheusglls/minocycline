@@ -1,0 +1,111 @@
+id,study_id,exp_id,test,measure,effect_direction,effect_direction_correction,n_ctrl,mean_ctrl,sd_ctrl,n_mino,mean_mino,sd_mino
+1,Amorim_2017,Amorim_2017,Forced swim,latency to immobility,Auto,1,8,26.7111474,10.26112076,8,38.93738175,14.76682882
+2,Amorim_2017,Amorim_2017,Forced swim,immobility,Flipped,-1,8,251.8750892,19.64295322,8,167.0188532,49.40169194
+3,Arakawa_2012,Arakawa_2012_Group1,Conditioned avoidance,failure numbers,Flipped,-1,6,24.342,5.706086356,11,14.28136364,10.34713496
+4,Arakawa_2012,Arakawa_2012_Group1,Conditioned avoidance,latency to escape,Flipped,-1,6,27.386,6.972472553,11,19.16340909,9.636772831
+5,Arakawa_2012,Arakawa_2012_Group2,Conditioned avoidance,failure numbers,Flipped,-1,5,2.443,5.197740014,5,2.833,5.722097954
+6,Arakawa_2012,Arakawa_2012_Group2,Conditioned avoidance,latency to escape,Flipped,-1,5,7.15,6.685843253,5,7.5,6.059744219
+7,Burke_2014,Burke_2014_Group1,Open field,distance,Flipped,-1,7,1774.627314,729.8855931,7,1272.256349,1129.397403
+8,Burke_2014,Burke_2014_Group2,Open field,distance,Flipped,-1,7,2481.963959,678.6685489,7,2121.047419,642.4921825
+9,Burke_2014,Burke_2014_Group3,Open field,distance,Flipped,-1,7,3103.62505,1067.745391,7,2221.90549,384.1804619
+10,Burke_2014,Burke_2014_Group4,Open field,distance,Flipped,-1,7,1895.573054,949.7453314,7,1628.176985,718.8280948
+11,Chijiwa_2015,Chijiwa_2015_Group1,Forced swim,immobility,Flipped,-1,6,413.0809701,88.3875704,6,254.7358056,31.70006181
+12,Chijiwa_2015,Chijiwa_2015_Group2,Forced swim,immobility,Flipped,-1,5,233.5956407,26.09056109,6,234.324612,27.68797396
+13,Deak_2005,Deak_2005,Forced swim,immobility,Flipped,-1,9,34.00461682,11.42120118,18,36.36678193,11.77392978
+14,Liu_2015,Liu_2015,Sucrose preference,% preference,Auto,1,4,41.25504938,10.5708299,4,46.93774691,16.09999177
+15,Liu_2015,Liu_2015,Forced swim,immobility,Flipped,-1,4,44.42839595,21.46485726,4,41.39704335,11.87329087
+16,Liu_2015,Liu_2015,Tail suspension,immobility,Flipped,-1,4,41.19690485,12.60182187,4,38.94505108,15.16796048
+17,Mahmoud_2017,Mahmoud_2017_Group1,Forced swim,immobility,Flipped,-1,6,121.3447449,5.96522449,6,125.634102,7.893591837
+18,Mahmoud_2017,Mahmoud_2017_Group1,Sucrose preference,% preference,Auto,1,6,71.472,8.498,6,71.5715,8.4115
+19,Mahmoud_2017,Mahmoud_2017_Group2,Forced swim,immobility,Flipped,-1,5,242.8691122,26.54676531,5,186.6753469,30.83662245
+20,Mahmoud_2017,Mahmoud_2017_Group2,Sucrose preference,% preference,Auto,1,6,62.983,4.7135,6,64.2715,4.4595
+21,Majidi_2016,Majidi_2016_Group1,Sucrose preference,% preference,Auto,1,9,63.14612519,11.23762212,9,67.10333103,13.6574447
+22,Majidi_2016,Majidi_2016_Group1,Tail suspension,immobility,Flipped,-1,9,104.2337476,22.4891877,9,94.45479338,25.54252524
+23,Majidi_2016,Majidi_2016_Group1,Forced swim,immobility,Flipped,-1,9,134.2882542,28.02335593,9,115.2830508,17.68037288
+24,Majidi_2016,Majidi_2016_Group2,Sucrose preference,% preference,Auto,1,9,45.21681106,15.30660369,9,59.47380722,11.87011751
+25,Majidi_2016,Majidi_2016_Group2,Tail suspension,immobility,Flipped,-1,9,135.1694779,21.13782019,9,108.6455852,30.63286278
+26,Majidi_2016,Majidi_2016_Group2,Forced swim,immobility,Flipped,-1,9,176.6427203,21.9909661,9,127.1358983,38.48494068
+27,McKim_2016,McKim_2016,Social interaction,time in interaction zone,Auto,1,6,55.517,32.07,6,63.66044293,39.30580545
+28,Molina-Hernández_2018a,Molina-Hernández_2018a,Forced swim,immobility,Flipped,-1,7,32.63,10.05385498,21,20.96666667,12.18262424
+29,Molina-Hernández_2018b,Molina-Hernández_2018b_Group1,Forced swim,immobility,Flipped,-1,7,32.6,4.731944632,21,18.36666667,14.08358382
+30,Molina-Hernández_2018b,Molina-Hernández_2018b_Group2,Forced swim,immobility,Flipped,-1,7,34.7,8.466404195,14,22.95,13.47486264
+31,Nagpal_2013,Nagpal_2013,Tail suspension,immobility,Flipped,-1,6,248,40.68602463,6,237,29.81029017
+32,Nagpal_2013,Nagpal_2013,Forced swim,immobility,Flipped,-1,6,113.33,31.99033604,6,90,18.32218328
+33,Norden_2015,Norden_2015_Group1,Forced swim,immobility,Flipped,-1,8,68.63312409,8.115327636,8,71.00495775,14.80171336
+34,Norden_2015,Norden_2015_Group2,Forced swim,immobility,Flipped,-1,8,108.8191914,16.2239399,8,88.62506557,17.53698667
+35,O’Connor_2009,O’Connor_2009_Group1,Forced swim,immobility,Flipped,-1,11,63.28621171,63.17368825,11,62.508,69.65095225
+36,O’Connor_2009,O’Connor_2009_Group1,Tail suspension,immobility,Flipped,-1,11,120.7839923,53.33473419,11,123.827,56.86196731
+37,O’Connor_2009,O’Connor_2009_Group2,Forced swim,immobility,Flipped,-1,11,137.934,45.63325349,11,68.12614414,44.46565413
+38,O’Connor_2009,O’Connor_2009_Group2,Tail suspension,immobility,Flipped,-1,11,229.644,61.07133187,11,143.8846711,28.58587789
+39,Rinwa_2013,Rinwa_2013_Group1,Open field,ambulations,Flipped,-1,12,187.4,18.04796941,24,142.1,40.13067611
+40,Rinwa_2013,Rinwa_2013_Group1,Forced swim,immobility,Flipped,-1,12,192.4925256,31.72707369,24,142.7292167,38.26227528
+41,Rinwa_2013,Rinwa_2013_Group2,Open field,ambulations,Flipped,-1,12,172.4,32.35470909,12,122.6,20.33427648
+42,Rinwa_2013,Rinwa_2013_Group2,Forced swim,immobility,Flipped,-1,12,182.263202,27.87541954,12,129.1649371,12.7989379
+43,Rinwa_2013,Rinwa_2013_Group3,Open field,ambulations,Flipped,-1,12,132.7,28.92524849,12,90.3,29.20237662
+44,Rinwa_2013,Rinwa_2013_Group3,Forced swim,immobility,Flipped,-1,12,137.8038558,26.48164856,12,87.81241241,7.507680936
+45,Saravi_2016a,Saravi_2016a_Group1,Forced swim,immobility,Flipped,-1,6,242.5708952,12.17259075,18,162.6260336,22.1188016
+46,Saravi_2016a,Saravi_2016a_Group2,Forced swim,immobility,Flipped,-1,6,242.9968205,23.9765019,6,141.190883,17.87980659
+47,Saravi_2016a,Saravi_2016a_Group3,Forced swim,immobility,Flipped,-1,6,242.9612023,23.30287665,6,171.6258829,25.88176306
+48,Saravi_2016a,Saravi_2016a_Group4,Forced swim,immobility,Flipped,-1,6,242.5152722,25.04408644,6,173.5105355,25.04817697
+49,Saravi_2016a,Saravi_2016a_Group5,Forced swim,immobility,Flipped,-1,6,243.3696908,23.81136108,6,141.3967079,17.51464986
+50,Saravi_2016b,Saravi_2016b_Group1,Forced swim,immobility,Flipped,-1,6,229.67157,10.02265,18,117.6104167,21.85020193
+51,Saravi_2016b,Saravi_2016b_Group1,Tail suspension,immobility,Flipped,-1,6,160.35398,7.78761,18,124.83776,26.01695501
+52,Saravi_2016b,Saravi_2016b_Group2,Forced swim,immobility,Flipped,-1,6,229.96689,10.43046,6,93.37748,7.45033
+53,Saravi_2016b,Saravi_2016b_Group2,Tail suspension,immobility,Flipped,-1,6,159.79644,8.14249,6,95.6743,17.81171
+54,Saravi_2016b,Saravi_2016b_Group3,Forced swim,immobility,Flipped,-1,6,229.1411,44.63191,6,125.15337,10.1227
+55,Saravi_2016b,Saravi_2016b_Group3,Tail suspension,immobility,Flipped,-1,6,159.6662,8.62309,6,133.79694,12.51739
+56,Saravi_2016b,Saravi_2016b_Group4,Forced swim,immobility,Flipped,-1,6,228.97196,43.92524,6,125.23364,10.28038
+57,Saravi_2016b,Saravi_2016b_Group4,Tail suspension,immobility,Flipped,-1,6,159.2233,9.06149,6,133.98058,11.65049
+58,Saravi_2016b,Saravi_2016b_Group5,Forced swim,immobility,Flipped,-1,6,229.70711,11.29707,6,125.52301,8.78661
+59,Saravi_2016b,Saravi_2016b_Group5,Tail suspension,immobility,Flipped,-1,6,160.39823,8.84956,6,96.23894,17.69911
+60,da Silva Dias_2016,da Silva Dias_2016,Forced swim,immobility,Flipped,-1,7,55.5385,2.076,7,52.584,4.7145
+61,Singh_2016,Singh_2016_Group1,Tail suspension,immobility,Flipped,-1,6,279.9432273,32.04222069,6,187.3846061,32.64898899
+62,Singh_2016,Singh_2016_Group1,Forced swim,immobility,Flipped,-1,6,279.5729517,20.92468417,6,144.5679591,20.09185766
+63,Singh_2016,Singh_2016_Group2,Tail suspension,immobility,Flipped,-1,6,256.301303,32.80891098,18,155.9663737,49.98598321
+64,Singh_2016,Singh_2016_Group2,Forced swim,immobility,Flipped,-1,6,207.1189721,27.6136078,18,123.2747038,42.49741032
+65,Singh_2017,Singh_2017_Group1,Forced swim,immobility,Flipped,-1,6,143.8985737,34.93725465,6,84.38828764,10.94726072
+66,Singh_2017,Singh_2017_Group2,Forced swim,immobility,Flipped,-1,6,83.11837322,19.77097106,6,72.91005784,9.840143765
+67,Souza_2017,Souza_2017_Group1,Forced swim,immobility,Flipped,-1,6,175.5110558,9.924210291,6,170.2830408,15.39401811
+68,Souza_2017,Souza_2017_Group1,Splash test ,grooming time,Auto,1,6,103.0245546,19.31431175,6,98.93947504,15.67967699
+69,Souza_2017,Souza_2017_Group2,Forced swim,immobility,Flipped,-1,6,239.7433047,19.0889879,6,190.4592854,14.0262126
+70,Souza_2017,Souza_2017_Group2,Splash test ,grooming time,Auto,1,6,46.79142668,14.11271513,6,95.61240484,12.37884959
+71,Tong_2017,Tong_2017_Group1,Tail suspension,immobility,Flipped,-1,12,118.3668174,29.53349901,12,114.384774,19.02721785
+72,Tong_2017,Tong_2017_Group1,Forced swim,immobility,Flipped,-1,12,101.7945519,14.04033014,12,106.8611696,12.28485586
+73,Tong_2017,Tong_2017_Group1,Sucrose preference,% preference,Auto,1,12,70.80594767,7.617399471,12,75.2043553,5.503667964
+74,Tong_2017,Tong_2017_Group2,Tail suspension,immobility,Flipped,-1,12,160.3688667,23.16056503,12,121.2111532,19.68043067
+75,Tong_2017,Tong_2017_Group2,Forced swim,immobility,Flipped,-1,12,129.2451465,19.42121096,12,110.533502,17.51342831
+76,Tong_2017,Tong_2017_Group2,Sucrose preference,% preference,Auto,1,12,41.21820818,11.38219937,12,72.03441092,18.37341517
+77,Tong_2017,Tong_2017_Group3,Tail suspension,immobility,Flipped,-1,12,94.29488851,23.25388115,12,96.88566238,10.37271365
+78,Tong_2017,Tong_2017_Group3,Forced swim,immobility,Flipped,-1,12,109.5667079,21.21890654,12,101.6789783,17.67357169
+79,Tong_2017,Tong_2017_Group3,Sucrose preference,% preference,Auto,1,12,80.43514427,9.864482545,12,78.02159065,7.408545446
+80,Tong_2017,Tong_2017_Group4,Tail suspension,immobility,Flipped,-1,12,125.2143249,24.11211984,12,101.1809536,17.5140343
+81,Tong_2017,Tong_2017_Group4,Forced swim,immobility,Flipped,-1,12,135.070526,37.61133115,12,110.533502,11.49024189
+82,Tong_2017,Tong_2017_Group4,Sucrose preference,% preference,Auto,1,12,35.9528646,15.01153725,12,64.25661824,12.77848344
+83,Tong_2017,Tong_2017_Group5,Tail suspension,immobility,Flipped,-1,12,96.91260042,10.0927653,12,105.0605546,13.88751909
+84,Tong_2017,Tong_2017_Group5,Forced swim,immobility,Flipped,-1,12,107.7817343,11.33009851,12,104.2122872,14.84104707
+85,Tong_2017,Tong_2017_Group5,Sucrose preference,% preference,Auto,1,12,75.68929597,9.625459534,12,70.35961152,14.49064662
+86,Tong_2017,Tong_2017_Group6,Tail suspension,immobility,Flipped,-1,12,138.8010877,22.58054264,12,111.6270621,14.76761553
+87,Tong_2017,Tong_2017_Group6,Forced swim,immobility,Flipped,-1,12,138.9382025,14.76097537,12,111.3280667,10.92974004
+88,Tong_2017,Tong_2017_Group6,Sucrose preference,% preference,Auto,1,12,36.96195968,9.864482545,12,67.09958993,16.85569835
+89,Vogt_2016,Vogt_2016,Forced swim,latency to immobility,Auto,1,13,3.93226378,2.527427915,26,6.074005906,6.348295783
+90,Vogt_2016,Vogt_2016,Forced swim,immobility,Flipped,-1,13,71.47757459,9.708435757,26,74.94188053,11.12349274
+91,Wang_2017,Wang_2017_Group1,Sucrose preference,% preference,Auto,1,8,73.56851527,9.914447417,8,78.30264715,13.32188409
+92,Wang_2017,Wang_2017_Group1,Forced swim,immobility,Flipped,-1,8,100.0480307,15.30135059,8,72.83542363,20.65271161
+93,Wang_2017,Wang_2017_Group2,Sucrose preference,% preference,Auto,1,9,45.07613733,23.14555126,9,77.62207544,20.71211025
+94,Wang_2017,Wang_2017_Group2,Forced swim,immobility,Flipped,-1,9,147.3707161,33.01388184,9,84.02498943,38.40167291
+95,Wong_2016,Wong_2016_Group1,Forced swim,immobility,Flipped,-1,12,211.1302437,8.64031474,12,216.1505215,10.63423379
+96,Wong_2016,Wong_2016_Group2,Forced swim,immobility,Flipped,-1,15,221.4380798,17.09106251,15,206.0094659,16.53374491
+97,Xie_2014,Xie_2014_Group1,Forced swim,immobility,Flipped,-1,5,77.80446358,11.71419384,6,75.76653864,10.89799391
+98,Xie_2014,Xie_2014_Group1,Sucrose preference,% preference,Auto,1,5,79.87574883,5.80474717,6,78.23829598,5.673990003
+99,Xie_2014,Xie_2014_Group2,Forced swim,immobility,Flipped,-1,6,168.5085034,15.65523586,5,115.340797,17.08241645
+100,Xie_2014,Xie_2014_Group2,Sucrose preference,% preference,Auto,1,6,57.27091191,6.554436742,5,68.45351674,7.099652261
+101,Xu_2017,Xu_2017_Group1,Forced swim,immobility,Flipped,-1,12,71.93509347,25.70185499,12,62.45097741,23.2086816
+102,Xu_2017,Xu_2017_Group1,Sucrose preference,% preference,Auto,1,12,0.8573950617,0.1241089245,12,0.7951481481,0.09686654516
+103,Xu_2017,Xu_2017_Group2,Forced swim,immobility,Flipped,-1,12,117.1780879,43.01798901,12,75.2356574,30.15563407
+104,Xu_2017,Xu_2017_Group2,Sucrose preference,% preference,Auto,1,12,0.4727283951,0.2638063063,12,0.7066296296,0.1741245645
+105,Zheng_2014,Zheng_2014,Sucrose preference,% preference,Auto,1,6,52.12271441,4.400793887,6,63.88980517,16.9236588
+106,Zheng_2014,Zheng_2014,Sucrose preference,sucrose water intake,Auto,1,6,13.03795645,1.662027016,6,18.5800789,1.644425045
+107,Zheng_2015,Zheng_2015_Group1,Tail suspension,immobility,Flipped,-1,10,105.4934278,19.90146605,10,106.752207,21.80905359
+108,Zheng_2015,Zheng_2015_Group1,Forced swim,immobility,Flipped,-1,10,88.49816464,31.27401003,10,92.05882774,26.63553295
+109,Zheng_2015,Zheng_2015_Group2,Tail suspension,immobility,Flipped,-1,10,156.2231846,54.74312061,10,102.2006733,38.08571225
+110,Zheng_2015,Zheng_2015_Group2,Forced swim,immobility,Flipped,-1,10,133.7864988,55.93311944,10,80.42331665,36.87089789

@@ -1,0 +1,61 @@
+Domain,Judgment,n,pct,Dataset
+1) Sequence generation,Low,1,0.045454545454545456,Original
+1) Sequence generation,Unclear,21,0.9545454545454546,Original
+1) Sequence generation,High,0,0,Original
+2) Baseline characteristics,Low,1,0.045454545454545456,Original
+2) Baseline characteristics,Unclear,21,0.9545454545454546,Original
+2) Baseline characteristics,High,0,0,Original
+3) Allocation concealment,Low,0,0,Original
+3) Allocation concealment,Unclear,22,1,Original
+3) Allocation concealment,High,0,0,Original
+4) Random housing,Low,0,0,Original
+4) Random housing,Unclear,22,1,Original
+4) Random housing,High,0,0,Original
+5) Blinding caregivers,Low,0,0,Original
+5) Blinding caregivers,Unclear,21,0.9545454545454546,Original
+5) Blinding caregivers,High,1,0.045454545454545456,Original
+6) Random outcome assessment,Low,0,0,Original
+6) Random outcome assessment,Unclear,22,1,Original
+6) Random outcome assessment,High,0,0,Original
+7) Blinding outcome assessment,Low,0,0,Original
+7) Blinding outcome assessment,Unclear,22,1,Original
+7) Blinding outcome assessment,High,0,0,Original
+8) Incomplete outcome data,Low,14,0.6363636363636364,Original
+8) Incomplete outcome data,Unclear,8,0.36363636363636365,Original
+8) Incomplete outcome data,High,0,0,Original
+9) Selective outcome reporting,Low,22,1,Original
+9) Selective outcome reporting,Unclear,0,0,Original
+9) Selective outcome reporting,High,0,0,Original
+10) Other,Low,17,0.7727272727272727,Original
+10) Other,Unclear,0,0,Original
+10) Other,High,5,0.22727272727272727,Original
+1) Sequence generation,Low,0,0,Replication
+1) Sequence generation,Unclear,28,1,Replication
+1) Sequence generation,High,0,0,Replication
+2) Baseline characteristics,Low,12,0.42857142857142855,Replication
+2) Baseline characteristics,Unclear,16,0.5714285714285714,Replication
+2) Baseline characteristics,High,0,0,Replication
+3) Allocation concealment,Low,0,0,Replication
+3) Allocation concealment,Unclear,28,1,Replication
+3) Allocation concealment,High,0,0,Replication
+4) Random housing,Low,0,0,Replication
+4) Random housing,Unclear,28,1,Replication
+4) Random housing,High,0,0,Replication
+5) Blinding caregivers,Low,1,0.03571428571428571,Replication
+5) Blinding caregivers,Unclear,18,0.6428571428571429,Replication
+5) Blinding caregivers,High,9,0.32142857142857145,Replication
+6) Random outcome assessment,Low,0,0,Replication
+6) Random outcome assessment,Unclear,28,1,Replication
+6) Random outcome assessment,High,0,0,Replication
+7) Blinding outcome assessment,Low,10,0.35714285714285715,Replication
+7) Blinding outcome assessment,Unclear,18,0.6428571428571429,Replication
+7) Blinding outcome assessment,High,0,0,Replication
+8) Incomplete outcome data,Low,9,0.32142857142857145,Replication
+8) Incomplete outcome data,Unclear,13,0.4642857142857143,Replication
+8) Incomplete outcome data,High,6,0.21428571428571427,Replication
+9) Selective outcome reporting,Low,23,0.8214285714285714,Replication
+9) Selective outcome reporting,Unclear,2,0.07142857142857142,Replication
+9) Selective outcome reporting,High,3,0.10714285714285714,Replication
+10) Other,Low,8,0.2857142857142857,Replication
+10) Other,Unclear,10,0.35714285714285715,Replication
+10) Other,High,10,0.35714285714285715,Replication

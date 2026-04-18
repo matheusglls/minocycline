@@ -1,0 +1,23 @@
+Domain,DiffF,n,pct
+1) Sequence generation,0,20,1
+2) Baseline characteristics,-1,7,0.35
+2) Baseline characteristics,0,13,0.65
+3) Allocation concealment,0,20,1
+4) Random housing,0,20,1
+5) Blinding caregivers,-1,1,0.05
+5) Blinding caregivers,0,14,0.7
+5) Blinding caregivers,1,5,0.25
+6) Random outcome assessment,0,20,1
+7) Blinding outcome assessment,-1,9,0.45
+7) Blinding outcome assessment,0,11,0.55
+8) Incomplete outcome data,-1,3,0.15
+8) Incomplete outcome data,0,10,0.5
+8) Incomplete outcome data,1,4,0.2
+8) Incomplete outcome data,2,3,0.15
+9) Selective outcome reporting,0,16,0.8
+9) Selective outcome reporting,1,2,0.1
+9) Selective outcome reporting,2,2,0.1
+10) Other,-1,2,0.1
+10) Other,0,10,0.5
+10) Other,1,4,0.2
+10) Other,2,4,0.2

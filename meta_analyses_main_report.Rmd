@@ -1,0 +1,803 @@
+---
+title: "Replication of Reis et al. (2019): Main Meta-Analyses"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+params:
+  rho: 0.8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center"
+)
+
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+  library(metafor)
+  library(robumeta)
+  library(tibble)
+  library(stringr)
+  library(gt)
+  library(readxl)
+  library(tidyr)
+  library(scales)
+  library(knitr)
+  library(htmltools)
+  library(readr)
+})
+```
+
+# Overview
+
+This report presents the four main meta-analytic specifications used to support the manuscript. The primary analysis is the direct replication dataset, which is followed by three complementary analyses: computational reproduction based on the published supplementary dataset, a risk-of-bias–adjusted sensitivity analysis, and a recycling-adjusted sensitivity analysis.
+
+For each specification, the report provides a forest plot, pooled estimate and heterogeneity statistics, regression tests of funnel plot asymmetry, two funnel plot views, and a leave-one-out influence analysis.
+
+```{r helpers, include=FALSE}
+get_rve_point <- function(fit) {
+  rt <- fit$reg_table
+  if ("b.r" %in% names(rt)) return(as.numeric(rt$b.r[1]))
+  if ("Value" %in% names(rt)) return(as.numeric(rt$Value[1]))
+  as.numeric(rt[[1]][1])
+}
+
+get_rve_ci <- function(fit) {
+  rt <- fit$reg_table
+  ci_nm <- grep("^CI", names(rt), value = TRUE)
+  c(
+    lcl = as.numeric(rt[[ci_nm[1]]][1]),
+    ucl = as.numeric(rt[[ci_nm[2]]][1])
+  )
+}
+
+triangle_segments <- function(b, y_max) {
+  tibble(
+    x0 = c(b, b),
+    y0 = c(0, 0),
+    x1 = c(b - 1.96 * y_max, b + 1.96 * y_max),
+    y1 = c(y_max, y_max)
+  )
+}
+
+make_egger_table <- function(dat, label_prefix, tx_col = NULL, c_col = NULL) {
+  eg1 <- dat %>% filter(is.finite(se), se > 0) %>% mutate(Z = hedges / se, Prec = 1 / se)
+  fit1 <- lm(Z ~ Prec, data = eg1)
+  s1 <- summary(fit1)
+  t_intercept1 <- unname(coef(s1)[1, 1] / coef(s1)[1, 2])
+  df1 <- s1$df[2]
+  p_intercept1 <- 2 * pt(abs(t_intercept1), df = df1, lower.tail = FALSE)
+
+  rows <- list(
+    tibble(
+      Analysis = label_prefix,
+      Precision = "SE",
+      Egger_intercept = unname(coef(s1)[1, 1]),
+      Egger_intercept_SE = unname(coef(s1)[1, 2]),
+      Egger_intercept_t = t_intercept1,
+      Egger_intercept_df = df1,
+      Egger_intercept_p = p_intercept1,
+      Slope = unname(coef(s1)[2, 1]),
+      Slope_SE = unname(coef(s1)[2, 2]),
+      Slope_p = unname(coef(s1)[2, 4]),
+      n_used = nrow(eg1)
+    )
+  )
+
+  if (!is.null(tx_col) && !is.null(c_col) && all(c(tx_col, c_col) %in% names(dat))) {
+    eg2 <- dat %>%
+      mutate(n_total = .data[[tx_col]] + .data[[c_col]], prec_n = sqrt(n_total)) %>%
+      filter(is.finite(prec_n), prec_n > 0)
+    fit2 <- lm(I(hedges * prec_n) ~ prec_n, data = eg2)
+    s2 <- summary(fit2)
+    t_intercept2 <- unname(coef(s2)[1, 1] / coef(s2)[1, 2])
+    df2 <- s2$df[2]
+    p_intercept2 <- 2 * pt(abs(t_intercept2), df = df2, lower.tail = FALSE)
+
+    rows[[2]] <- tibble(
+      Analysis = label_prefix,
+      Precision = "1/sqrt(n)",
+      Egger_intercept = unname(coef(s2)[1, 1]),
+      Egger_intercept_SE = unname(coef(s2)[1, 2]),
+      Egger_intercept_t = t_intercept2,
+      Egger_intercept_df = df2,
+      Egger_intercept_p = p_intercept2,
+      Slope = unname(coef(s2)[2, 1]),
+      Slope_SE = unname(coef(s2)[2, 2]),
+      Slope_p = unname(coef(s2)[2, 4]),
+      n_used = nrow(eg2)
+    )
+  }
+
+  bind_rows(rows) %>%
+    mutate(
+      `Intercept p` = ifelse(Egger_intercept_p < 0.001, "< 0.001", sprintf("%.3f", Egger_intercept_p)),
+      `Slope p` = ifelse(Slope_p < 0.001, "< 0.001", sprintf("%.3f", Slope_p)),
+      Intercept = round(Egger_intercept, 3),
+      `SE (Intercept)` = round(Egger_intercept_SE, 3),
+      t = round(Egger_intercept_t, 2),
+      df = round(Egger_intercept_df, 1),
+      Slope = round(Slope, 3),
+      `SE (Slope)` = round(Slope_SE, 3)
+    ) %>%
+    select(Precision, Intercept, `SE (Intercept)`, t, df, `Intercept p`, Slope, `SE (Slope)`, `Slope p`, n_used)
+}
+
+make_loo_table <- function(dat, cluster_col = "exp_id", rho = 0.8) {
+  uniq <- unique(dat[[cluster_col]])
+  dat$study_tmp <- as.integer(factor(dat[[cluster_col]]))
+  fit_base <- robu(
+    hedges ~ 1,
+    data = dat,
+    studynum = study_tmp,
+    var.eff.size = dat$vi,
+    modelweights = "CORR",
+    rho = rho,
+    small = TRUE
+  )
+  base_b <- get_rve_point(fit_base)
+
+  rows <- lapply(uniq, function(drop_id) {
+    d <- dat %>% filter(.data[[cluster_col]] != drop_id)
+    if (nrow(d) < 2L) {
+      return(tibble(Dropped = drop_id, k_remaining = nrow(d), Pooled_SMD = NA_real_, LCL = NA_real_, UCL = NA_real_))
+    }
+    d$study_tmp <- as.integer(factor(d[[cluster_col]]))
+    fit <- try(
+      robu(
+        hedges ~ 1,
+        data = d,
+        studynum = study_tmp,
+        var.eff.size = d$vi,
+        modelweights = "CORR",
+        rho = rho,
+        small = TRUE
+      ),
+      silent = TRUE
+    )
+    if (inherits(fit, "try-error")) {
+      tibble(Dropped = drop_id, k_remaining = nrow(d), Pooled_SMD = NA_real_, LCL = NA_real_, UCL = NA_real_)
+    } else {
+      ci <- get_rve_ci(fit)
+      tibble(
+        Dropped = drop_id,
+        k_remaining = nrow(d),
+        Pooled_SMD = get_rve_point(fit),
+        LCL = ci["lcl"],
+        UCL = ci["ucl"]
+      )
+    }
+  })
+
+  bind_rows(rows) %>%
+    mutate(
+      Delta = Pooled_SMD - base_b,
+      `% change` = 100 * Delta / abs(base_b),
+      `Pooled SMD [95% CI]` = ifelse(
+        is.na(Pooled_SMD),
+        NA_character_,
+        sprintf("%.2f [%.2f, %.2f]", Pooled_SMD, LCL, UCL)
+      ),
+      Delta = sprintf("%+.3f", Delta),
+      `% change` = sprintf("%+.1f%%", `% change`)
+    ) %>%
+    arrange(desc(abs(as.numeric(Delta)))) %>%
+    select(Dropped, k_remaining, `Pooled SMD [95% CI]`, Delta, `% change`)
+}
+
+make_rve_summary <- function(fit, label) {
+  rt <- fit$reg_table
+  nm <- names(rt)
+  get1 <- function(x) if (is.null(x) || length(x) == 0) NA_real_ else as.numeric(x[1])
+
+  b <- if ("b.r" %in% nm) get1(rt$b.r) else if ("Value" %in% nm) get1(rt$Value) else get1(rt[[1]])
+  se <- if ("SE.robust" %in% nm) get1(rt$SE.robust) else if ("SE" %in% nm) get1(rt$SE) else NA_real_
+  tval <- if ("t" %in% nm) get1(rt$t) else if ("t-stat" %in% nm) get1(rt$`t-stat`) else if (is.finite(se)) b / se else NA_real_
+  df <- if ("df" %in% nm) get1(rt$df) else if ("df.amended" %in% nm) get1(rt$`df.amended`) else if ("dfs" %in% nm) get1(rt$dfs) else NA_real_
+  pval <- if ("prob" %in% nm) get1(rt$prob) else if ("p-value" %in% nm) get1(rt$`p-value`) else if (is.finite(tval) && is.finite(df)) 2 * pt(abs(tval), df, lower.tail = FALSE) else NA_real_
+  ci <- get_rve_ci(fit)
+  mi <- fit$mod_info
+  I2 <- get1(mi[["I.2"]])
+  tau2 <- get1(mi[["tau.sq"]])
+
+  tibble(
+    Analysis = label,
+    Estimate = b,
+    Lower = ci["lcl"],
+    Upper = ci["ucl"],
+    SE = round(se, 3),
+    t = round(tval, 2),
+    df = round(df, 1),
+    p = ifelse(is.finite(pval), ifelse(pval < 0.001, "< 0.001", sprintf("%.3f", pval)), "NA"),
+    tau2 = round(tau2, 3),
+    I2 = ifelse(is.finite(I2), sprintf("%.1f%%", I2), "NA")
+  )
+}
+
+plot_funnel_se <- function(dat, b_hat, title_txt) {
+  seg <- triangle_segments(b_hat, max(dat$se, na.rm = TRUE))
+  ggplot(dat, aes(x = hedges, y = se)) +
+    geom_point(shape = 21, fill = "white", alpha = 0.9, size = 2, stroke = 0.6) +
+    geom_vline(xintercept = b_hat, linewidth = 0.5) +
+    geom_segment(data = seg[1, ], aes(x = x0, y = y0, xend = x1, yend = y1), linetype = "dotted", inherit.aes = FALSE) +
+    geom_segment(data = seg[2, ], aes(x = x0, y = y0, xend = x1, yend = y1), linetype = "dotted", inherit.aes = FALSE) +
+    scale_y_reverse() +
+    labs(x = "Standardized Mean Difference (SMD)", y = "Standard error", title = title_txt) +
+    theme_minimal(base_size = 12)
+}
+
+plot_funnel_inv_sqrtn <- function(dat, b_hat, title_txt, tx_col, c_col) {
+  dat2 <- dat %>%
+    mutate(n_total = .data[[tx_col]] + .data[[c_col]], inv_sqrtn = 1 / sqrt(n_total)) %>%
+    filter(is.finite(inv_sqrtn))
+
+  ggplot(dat2, aes(x = hedges, y = inv_sqrtn)) +
+    geom_point(shape = 21, fill = "white", alpha = 0.9, size = 2, stroke = 0.6) +
+    geom_vline(xintercept = b_hat, linewidth = 0.5) +
+    scale_y_reverse() +
+    labs(x = "Standardized Mean Difference (SMD)", y = expression(1/sqrt(n)), title = title_txt) +
+    theme_minimal(base_size = 12)
+}
+
+fig_dir <- "report_figures"
+tab_dir <- "report_tables"
+dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(tab_dir, showWarnings = FALSE, recursive = TRUE)
+
+make_forest_drawer <- function(
+  fit, dat_for_fit, left_lab, right_lab,
+  footer_prefix = "Overall (RVE)",
+  footer_left = list(x = 0.035, y = 0.0425, just = c("left", "bottom")),
+  footer_right = list(x = 0.8825, y = 0.0425, just = c("right", "bottom")),
+  footer_cex = 0.9
+) {
+  md_slot <- if (!is.null(fit$data.full)) "data.full" else "data"
+  md <- fit[[md_slot]]
+  if (!left_lab %in% names(md) && left_lab %in% names(dat_for_fit)) md[[left_lab]] <- dat_for_fit[[left_lab]]
+  if (!right_lab %in% names(md) && right_lab %in% names(dat_for_fit)) md[[right_lab]] <- dat_for_fit[[right_lab]]
+  if (!"effect.size.ci" %in% names(md) && "effect.size.ci" %in% names(dat_for_fit)) md$effect.size.ci <- dat_for_fit$effect.size.ci
+  if ("r.weights" %in% names(md)) md$r.weights <- round(100 * md$r.weights / sum(md$r.weights, na.rm = TRUE), 3)
+  fit[[md_slot]] <- md
+
+  function() {
+    forest.robu(
+      fit,
+      es.lab = left_lab,
+      study.lab = right_lab,
+      "Effect Size (95% CI)" = effect.size.ci,
+      "Weight (%)" = r.weights
+    )
+    rt <- fit$reg_table
+    b_rve <- if ("b.r" %in% names(rt)) rt$b.r[1] else if ("Value" %in% names(rt)) rt$Value[1] else rt[[1]][1]
+    ci_nm <- grep("^CI", names(rt), value = TRUE)
+    lcl <- rt[[ci_nm[1]]][1]
+    ucl <- rt[[ci_nm[2]]][1]
+    I2 <- suppressWarnings(as.numeric(fit$mod_info[["I.2"]]))
+    tau2 <- suppressWarnings(as.numeric(fit$mod_info[["tau.sq"]]))
+    grid::grid.text(
+      sprintf("I² (RVE) = %s%%; τ² = %.3f", ifelse(is.finite(I2), sprintf("%.2f", I2), "NA"), ifelse(is.finite(tau2), tau2, NA_real_)),
+      x = grid::unit(footer_left$x, "npc"),
+      y = grid::unit(footer_left$y, "npc"),
+      just = footer_left$just,
+      gp = grid::gpar(cex = footer_cex)
+    )
+    grid::grid.text(
+      sprintf("%s: %.2f [%.2f, %.2f]", footer_prefix, as.numeric(b_rve), as.numeric(lcl), as.numeric(ucl)),
+      x = grid::unit(footer_right$x, "npc"),
+      y = grid::unit(footer_right$y, "npc"),
+      just = footer_right$just,
+      gp = grid::gpar(cex = footer_cex)
+    )
+  }
+}
+
+forest_specs <- function(orig_code, n_rows) {
+  if (orig_code == "A") {
+    return(list(
+      width_in = 10,
+      height_in = max(12, min(60, 6.0 + 0.38 * n_rows)),
+      footer_left = list(x = 0.035, y = 0.0425, just = c("left", "bottom")),
+      footer_right = list(x = 0.8825, y = 0.0425, just = c("right", "bottom"))
+    ))
+  }
+  if (orig_code == "B") {
+    return(list(
+      width_in = 10,
+      height_in = max(12, min(60, 7.2 + 0.38 * n_rows)),
+      footer_left = list(x = 0.0105, y = 0.01875, just = c("left", "bottom")),
+      footer_right = list(x = 0.905, y = 0.01875, just = c("right", "bottom"))
+    ))
+  }
+  if (orig_code == "C") {
+    return(list(
+      width_in = 10,
+      height_in = max(12, min(60, 7.2 + 0.38 * n_rows)),
+      footer_left = list(x = 0.0105, y = 0.0235, just = c("left", "bottom")),
+      footer_right = list(x = 0.905, y = 0.0235, just = c("right", "bottom"))
+    ))
+  }
+  if (orig_code == "D") {
+    return(list(
+      width_in = 10,
+      height_in = max(12, min(60, 7.0 + 0.38 * n_rows)),
+      footer_left = list(x = 0.015, y = 0.0575, just = c("left", "bottom")),
+      footer_right = list(x = 0.905, y = 0.0575, just = c("right", "bottom"))
+    ))
+  }
+  if (orig_code == "G") {
+    return(list(
+      width_in = 10,
+      height_in = max(12, min(60, 7.2 + 0.38 * n_rows)),
+      footer_left = list(x = 0.0105, y = 0.0375, just = c("left", "bottom")),
+      footer_right = list(x = 0.905, y = 0.0375, just = c("right", "bottom"))
+    ))
+  }
+  stop("Unknown orig_code")
+}
+
+save_forest_png <- function(res, dpi = 600) {
+  md_slot <- if (!is.null(res$fit$data.full)) "data.full" else "data"
+  n_rows <- nrow(res$fit[[md_slot]])
+  spec <- forest_specs(res$orig_code, n_rows)
+  file <- file.path(fig_dir, paste0("forest_", res$short, ".png"))
+  grDevices::png(file, width = spec$width_in, height = spec$height_in, units = "in", res = dpi)
+  draw_fun <- make_forest_drawer(
+    fit = res$fit,
+    dat_for_fit = res$dat,
+    left_lab = res$left_lab,
+    right_lab = res$right_lab,
+    footer_prefix = "Overall (RVE)",
+    footer_left = spec$footer_left,
+    footer_right = spec$footer_right
+  )
+  draw_fun()
+  dev.off()
+  file
+}
+
+save_gg_png <- function(plot, filename, width_in = 9, height_in = 5.5, dpi = 600) {
+  file <- file.path(fig_dir, filename)
+  ggplot2::ggsave(file, plot = plot, width = width_in, height = height_in, units = "in", dpi = dpi, bg = "white")
+  file
+}
+
+save_table_csv <- function(df, filename) {
+  file <- file.path(tab_dir, filename)
+  readr::write_csv(df, file)
+  file
+}
+
+img_tag <- function(path, width = "100%") {
+  as.character(htmltools::tags$img(src = path, style = paste0("width:", width, ";height:auto;display:block;margin:0 auto;")))
+}
+
+run_analysis_A <- function(rho = params$rho) {
+  dat <- read.csv("41598_2018_36507_MOESM2_ESM.csv", stringsAsFactors = FALSE)
+  stopifnot(all(c("hedges", "se", "study", "author", "year") %in% names(dat)))
+
+  dat$vi <- dat$se^2
+  dat$se <- sqrt(dat$vi)
+  dat <- dat %>%
+    group_by(author, year) %>%
+    mutate(
+      .base = paste0(author, ", ", year),
+      .study_index = match(study, unique(study)),
+      .n_study = dplyr::n_distinct(study),
+      Label = ifelse(.n_study > 1L, paste0(.base, " ", .study_index), .base)
+    ) %>%
+    ungroup() %>%
+    select(-.base, -.study_index, -.n_study)
+
+  if (!"paradigm" %in% names(dat)) dat$paradigm <- "Unspecified"
+  dat$paradigm[is.na(dat$paradigm) | dat$paradigm == ""] <- "Unspecified"
+  dat$paradigm <- factor(dat$paradigm)
+  dat$effect.size.ci <- sprintf("%.2f (%.2f, %.2f)", dat$hedges, dat$hedges - 1.96 * dat$se, dat$hedges + 1.96 * dat$se)
+
+  fit <- robumeta::robu(
+    hedges ~ 1,
+    data = dat,
+    studynum = study,
+    var.eff.size = vi,
+    modelweights = "CORR",
+    rho = rho,
+    small = TRUE
+  )
+
+  list(
+    label = "Computational reproduction",
+    short = "A",
+    orig_code = "A",
+    narrative = "This analysis uses the published supplementary effect-size dataset to test whether a rebuilt analytical pipeline can recover the original quantitative signal. It therefore evaluates reproducibility of the published analysis more directly than the independently reconstructed dataset does.",
+    dat = dat,
+    fit = fit,
+    left_lab = "paradigm",
+    right_lab = "Label",
+    cluster_col = "study",
+    tx_col = if (all(c("tx_n", "c_n") %in% names(dat))) "tx_n" else NULL,
+    c_col = if (all(c("tx_n", "c_n") %in% names(dat))) "c_n" else NULL,
+    forest_caption = "Forest plot based on the original supplementary dataset, used to verify that the rebuilt pipeline reproduces the published signal.",
+    funnel_se_title = "Funnel plot: computational reproduction",
+    funnel_n_title = "Funnel plot (1/√n): computational reproduction"
+  )
+}
+
+run_analysis_from_complete <- function(mode = c("C", "B", "D"), rho = params$rho) {
+  mode <- match.arg(mode)
+  dat0 <- read.csv("Complete data.csv", stringsAsFactors = FALSE, check.names = TRUE)
+  need <- c("study_id", "exp_id", "n_ctrl", "mean_ctrl", "sd_ctrl", "n_mino", "mean_mino", "sd_mino", "effect_direction", "test")
+  miss <- setdiff(need, names(dat0))
+  if (length(miss)) stop("Missing columns: ", paste(miss, collapse = ", "))
+
+  if (mode == "C") {
+    dat0 <- dat0 %>% filter(!(study_id == "Wong_2016"))
+    label <- "Direct replication"
+    narrative <- "This is the primary analysis for the manuscript. It is based on the independently reconstructed dataset and reflects the direct replication of the original review workflow using the eligibility decisions adopted in the present study."
+    forest_caption <- "Forest plot for the direct replication."
+    funnel_se_title <- "Funnel plot: direct replication"
+    funnel_n_title <- "Funnel plot (1/√n): direct replication"
+  }
+
+  if (mode == "D") {
+    keep_ids <- c(
+      "Arakawa_2012", "Burke_2014", "Chijiwa_2015", "Deak_2005",
+      "Mahmoud_2017", "Majidi_2016", "McKim_2016",
+      "Molina-Hernández_2018b",
+      "O’Connor_2009", "Saravi_2016a", "Souza_2017",
+      "Tong_2017", "Wang_2017", "Xie_2014", "Zheng_2014"
+    )
+    dat0 <- dat0 %>% filter(study_id %in% keep_ids)
+    label <- "RoB-adjusted"
+    narrative <- "This sensitivity analysis restricts the dataset to studies not classified as high overall risk of bias. Its purpose is to assess whether the primary result remains stable after excluding studies considered more methodologically vulnerable."
+    forest_caption <- "Forest plot for the lower-risk subset."
+    funnel_se_title <- "Funnel plot: lower risk of bias"
+    funnel_n_title <- "Funnel plot (1/√n): lower risk of bias"
+  }
+
+  esc <- metafor::escalc(
+    measure = "SMD",
+    m1i = dat0$mean_mino, sd1i = dat0$sd_mino, n1i = dat0$n_mino,
+    m2i = dat0$mean_ctrl, sd2i = dat0$sd_ctrl, n2i = dat0$n_ctrl,
+    data = dat0
+  )
+  flip_idx <- tolower(stringr::str_trim(dat0$effect_direction)) == "auto"
+  esc$yi[flip_idx] <- -esc$yi[flip_idx]
+
+  dat <- dat0 %>%
+    mutate(
+      hedges = as.numeric(esc$yi),
+      vi = as.numeric(esc$vi),
+      se = sqrt(vi),
+      Label = gsub("_", " ", exp_id),
+      test = ifelse(is.na(test) | test == "", "Unspecified", test),
+      effect.size.ci = sprintf("%.2f (%.2f, %.2f)", hedges, hedges - 1.96 * se, hedges + 1.96 * se),
+      study = as.integer(factor(exp_id))
+    )
+  dat$test <- factor(dat$test)
+
+  fit <- robumeta::robu(
+    hedges ~ 1,
+    data = dat,
+    studynum = study,
+    var.eff.size = vi,
+    modelweights = "CORR",
+    rho = rho,
+    small = TRUE
+  )
+
+  list(
+    label = label,
+    short = mode,
+    orig_code = mode,
+    narrative = narrative,
+    dat = dat,
+    fit = fit,
+    left_lab = "test",
+    right_lab = "Label",
+    cluster_col = "exp_id",
+    tx_col = "n_mino",
+    c_col = "n_ctrl",
+    forest_caption = forest_caption,
+    funnel_se_title = funnel_se_title,
+    funnel_n_title = funnel_n_title
+  )
+}
+
+run_analysis_G <- function(rho = params$rho) {
+  xlf <- if (file.exists("Complete data_recycling.xlsx")) {
+    "Complete data_recycling.xlsx"
+  } else if (file.exists("/mnt/data/Complete data_recycling.xlsx")) {
+    "/mnt/data/Complete data_recycling.xlsx"
+  } else {
+    stop("Could not find 'Complete data_recycling.xlsx'.")
+  }
+
+  dat0 <- readxl::read_excel(xlf, .name_repair = "unique")
+  dat0 <- as.data.frame(dat0, stringsAsFactors = FALSE, check.names = TRUE)
+  need <- c("study_id", "exp_id", "n_ctrl", "mean_ctrl", "sd_ctrl", "n_mino", "mean_mino", "sd_mino", "effect_direction", "test")
+  miss <- setdiff(need, names(dat0))
+  if (length(miss)) stop("Missing columns in annex table: ", paste(miss, collapse = ", "))
+
+  esc <- metafor::escalc(
+    measure = "SMD",
+    m1i = dat0$mean_mino, sd1i = dat0$sd_mino, n1i = dat0$n_mino,
+    m2i = dat0$mean_ctrl, sd2i = dat0$sd_ctrl, n2i = dat0$n_ctrl,
+    data = dat0
+  )
+  flip_idx <- tolower(stringr::str_trim(dat0$effect_direction)) == "auto"
+  esc$yi[flip_idx] <- -esc$yi[flip_idx]
+
+  dat <- dat0 %>%
+    mutate(
+      hedges = as.numeric(esc$yi),
+      vi = as.numeric(esc$vi),
+      se = sqrt(vi),
+      Label = gsub("_", " ", exp_id),
+      test = ifelse(is.na(test) | test == "", "Unspecified", test),
+      effect.size.ci = sprintf("%.2f (%.2f, %.2f)", hedges, hedges - 1.96 * se, hedges + 1.96 * se),
+      study = as.integer(factor(exp_id))
+    )
+  dat$test <- factor(dat$test)
+
+  fit <- robumeta::robu(
+    hedges ~ 1,
+    data = dat,
+    studynum = study,
+    var.eff.size = vi,
+    modelweights = "CORR",
+    rho = rho,
+    small = TRUE
+  )
+
+  list(
+    label = "Recycling-adjusted",
+    short = "G",
+    orig_code = "G",
+    narrative = "This sensitivity analysis evaluates whether the primary result remains stable after excluding comparisons considered more likely to reflect repeated use of the same animals across multiple experiments or outcomes.",
+    dat = dat,
+    fit = fit,
+    left_lab = "test",
+    right_lab = "Label",
+    cluster_col = "exp_id",
+    tx_col = "n_mino",
+    c_col = "n_ctrl",
+    forest_caption = "Forest plot for the recycling-adjusted dataset.",
+    funnel_se_title = "Funnel plot: recycling-adjusted dataset",
+    funnel_n_title = "Funnel plot (1/√n): recycling-adjusted dataset"
+  )
+}
+
+analysis_results <- list(
+  run_analysis_from_complete("C"),
+  run_analysis_A(),
+  run_analysis_from_complete("D"),
+  run_analysis_G()
+)
+
+summary_results <- bind_rows(lapply(analysis_results, function(x) make_rve_summary(x$fit, x$label)))
+
+make_comparative_summary_plot <- function(summary_df,
+                                          out_png = file.path(fig_dir, "comparative_summary_plot.png")) {
+
+  original_row <- tibble(
+    analysis_name = "Original study",
+    pooled_smd = -1.07,
+    lcl_95 = -1.41,
+    ucl_95 = -0.74
+  )
+
+  plot_order <- c(
+    "Original study",
+    "Computational reproduction",
+    "Direct replication",
+    "RoB-adjusted",
+    "Recycling-adjusted"
+  )
+
+  plot_df <- bind_rows(original_row, summary_df) %>%
+    mutate(
+      display_label = case_when(
+        analysis_name == "Original study" ~ "Original study",
+        analysis_name == "Computational reproduction" ~ "Computational reproduction",
+        analysis_name == "Direct replication" ~ "Direct replication",
+        analysis_name == "RoB-adjusted" ~ "RoB-adjusted",
+        analysis_name == "Recycling-adjusted" ~ "Recycling-adjusted",
+        TRUE ~ analysis_name
+      ),
+      display_label = factor(display_label, levels = rev(plot_order)),
+      y_id = as.numeric(display_label),
+      is_original = analysis_name == "Original study"
+    )
+
+  x_min <- min(c(plot_df$lcl_95, 0), na.rm = TRUE)
+  x_max <- max(c(plot_df$ucl_95, 0), na.rm = TRUE)
+  x_pad <- 0.06 * (x_max - x_min)
+
+  p <- ggplot(plot_df, aes(y = display_label, x = pooled_smd)) +
+
+    geom_rect(
+      aes(
+        ymin = y_id - 0.42,
+        ymax = y_id + 0.42
+      ),
+      xmin = -Inf,
+      xmax = Inf,
+      fill = "grey97",
+      color = "grey80",
+      linewidth = 0.35,
+      inherit.aes = FALSE
+    ) +
+
+    geom_vline(
+      xintercept = 0,
+      linetype = "dashed",
+      linewidth = 0.6,
+      color = scales::alpha("grey50", 0.6)
+    ) +
+
+    geom_errorbarh(
+      aes(
+        xmin = lcl_95,
+        xmax = ucl_95,
+        color = is_original
+      ),
+      height = 0.14,
+      linewidth = 0.9,
+      show.legend = FALSE
+    ) +
+
+    geom_point(
+      aes(
+        fill = is_original,
+        color = is_original
+      ),
+      shape = 23,
+      size = 4.6,
+      stroke = 0.9,
+      show.legend = FALSE
+    ) +
+
+    scale_color_manual(
+      values = c(`TRUE` = scales::alpha("red3", 0.55), `FALSE` = "grey25")
+    ) +
+
+    scale_fill_manual(
+      values = c(`TRUE` = scales::alpha("red3", 0.35), `FALSE` = "black")
+    ) +
+
+    scale_y_discrete(
+      expand = expansion(mult = c(0.12, 0.12))
+    ) +
+
+    coord_cartesian(
+      xlim = c(x_min - x_pad, x_max + x_pad),
+      clip = "off"
+    ) +
+
+    labs(
+      x = "Pooled standardized mean difference (Hedges g)",
+      y = NULL,
+      title = NULL
+    ) +
+
+    theme_minimal(base_size = 15) +
+
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.text.y = element_text(size = 17, color = "black"),
+      axis.text.x = element_text(size = 14, color = "black"),
+      axis.title.x = element_text(
+        size = 16,
+        margin = margin(t = 18)
+      ),
+      plot.margin = margin(18, 30, 28, 24)
+    )
+
+  ggsave(
+    out_png,
+    p,
+    width = 11.5,
+    height = 6.8,
+    units = "in",
+    dpi = 600,
+    bg = "white"
+  )
+
+  return(out_png)
+}
+```
+
+# Main analyses
+
+```{r analysis-loop, results='asis'}
+for (res in analysis_results) {
+  cat("\n\n")
+  cat("## ", res$label, "\n\n", sep = "")
+  cat(res$narrative, "\n\n")
+
+  summary_df <- make_rve_summary(res$fit, res$label)
+  egger_df <- make_egger_table(res$dat, res$label, res$tx_col, res$c_col)
+  loo_df <- make_loo_table(res$dat, cluster_col = res$cluster_col, rho = params$rho)
+
+  forest_file <- save_forest_png(res)
+  funnel_se_file <- save_gg_png(
+    plot_funnel_se(res$dat, get_rve_point(res$fit), res$funnel_se_title),
+    paste0("funnel_se_", res$short, ".png"),
+    width_in = 8.5,
+    height_in = 5.5
+  )
+  if (!is.null(res$tx_col) && !is.null(res$c_col)) {
+    funnel_n_file <- save_gg_png(
+      plot_funnel_inv_sqrtn(res$dat, get_rve_point(res$fit), res$funnel_n_title, res$tx_col, res$c_col),
+      paste0("funnel_inv_sqrtn_", res$short, ".png"),
+      width_in = 8.5,
+      height_in = 5.5
+    )
+  }
+
+  save_table_csv(summary_df, paste0("summary_", res$short, ".csv"))
+  save_table_csv(egger_df, paste0("egger_", res$short, ".csv"))
+  save_table_csv(loo_df, paste0("leave_one_out_", res$short, ".csv"))
+
+  cat("### Forest plot\n\n")
+  cat(img_tag(forest_file, width = "100%"))
+  cat("\n\n")
+  cat("*", res$forest_caption, "*\n\n", sep = "")
+
+  cat("### Pooled estimate and heterogeneity\n\n")
+  print(gt::gt(summary_df))
+
+  cat("\n\n### Regression tests of funnel plot asymmetry\n\n")
+  print(gt::gt(egger_df))
+
+  cat("\n\n### Funnel plot using standard error as the precision metric\n\n")
+  cat(img_tag(funnel_se_file, width = "85%"))
+  cat("\n\n")
+
+  if (!is.null(res$tx_col) && !is.null(res$c_col)) {
+    cat("### Funnel plot using 1/√n as the precision metric\n\n")
+    cat(img_tag(funnel_n_file, width = "85%"))
+    cat("\n\n")
+  }
+
+  cat("### Influence analysis (leave-one-out)\n\n")
+  print(gt::gt(loo_df))
+}
+```
+
+# Comparative summary plot
+
+This section compares the main analytical datasets used in the project. The direct replication serves as the primary reference point for interpretation, while the computational reproduction and the sensitivity analyses are presented to show how the pooled estimate changes under different defensible analytical decisions. For visual reference, the plot also includes the pooled estimate reported in the original study.
+
+```{r dot-whisker, results='asis'}
+summary_plot_df <- summary_results %>%
+  rename(
+    analysis_name = Analysis,
+    pooled_smd = Estimate,
+    lcl_95 = Lower,
+    ucl_95 = Upper
+  ) %>%
+  mutate(
+    I2 = suppressWarnings(as.numeric(gsub("%", "", I2)))
+  )
+
+dot_file <- make_comparative_summary_plot(summary_plot_df)
+
+save_table_csv(summary_results, "pooled_summary_all_models.csv")
+cat(img_tag(dot_file, width = "95%"))
+```
+
+# Summary table across models
+
+This section compares the main analytical datasets used in the study. The direct replication is the primary analysis, and the remaining analyses are shown to indicate how the pooled estimate changes under different analytical assumptions and sensitivity restrictions.
+
+```{r pooled-summary-table}
+gt::gt(summary_results)
+```

@@ -1,0 +1,3 @@
+Precision,Intercept,SE (Intercept),t,df,Intercept p,Slope,SE (Slope),Slope p,n_used
+SE,-4.474,0.773,-5.79,94,< 0.001,1.422,0.392,< 0.001,96
+1/sqrt(n),-0.535,2.893,-0.19,94,0.854,-0.914,0.664,0.172,96

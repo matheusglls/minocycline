@@ -1,0 +1,11 @@
+Category,Percent agreement,PABAK,Cohen's κ (unweighted),Weighted κ (linear),Weighted κ (quadratic)
+1) Sequence generation,1,1,NA,NA,NA
+2) Baseline characteristics,0.65,0.475,0.146,0.146,0.146
+3) Allocation concealment,1,1,NA,NA,NA
+4) Random housing,1,1,NA,NA,NA
+5) Blinding caregivers,0.7,0.55,0,0,0
+6) Random outcome assessment,1,1,NA,NA,NA
+7) Blinding outcome assessment,0.55,0.325,0,0,0
+8) Incomplete outcome data,0.5,0.25,0.153,0.085,-0
+9) Selective outcome reporting,0.8,0.7,0,0,0
+10) Other,0.5,0.25,0.231,0.3,0.353

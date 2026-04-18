@@ -1,0 +1,72 @@
+study,author,year,tx_dur,tx_dose,tx_n,c_n,hedges,se,paradigm,measure,rodent,diseas,dis_pre,dis_tre
+1,"Amorim, D.",2017,21,80,8,8,-1.031,0.542,Forced Swim Test,Latency to Immobility,rat,1,0,1
+1,"Amorim, D.",2017,21,80,8,8,-2.516,0.716,Forced Swim Test,Immobility,rat,1,0,1
+2,"Burke, N.",2014,1,80,8,9,-0.675,0.504,Open Field Test,Locomotion (distance in cm),rat,1,0,1
+3,"Burke, N.",2014,15,,11,11,-1.32,0.48,Open Field Test,Locomotion (distance in cm),rat,1,0,1
+4,"Chijiwa, T.",2015,5,50,6,5,0.068,0.606,Forced Swim Test,Immobility,rat,1,1,0
+5,"Chijiwa, T.",2015,5,50,6,6,-2.39,0.8292,Forced Swim Test,Immobility,rat,1,1,0
+6,"Deak, T.",2005,2,30,19,10,0.205,0.392,Forced Swim Test,Immobility,rat,0,0,0
+7,"Henry, C.",2008,3,50,15,15,-0.749,0.38,Sucrose Preference Test,% preference,mice,0,0,0
+8,"Henry, C.",2008,3,50,15,15,-1.725,0.4364,Sucrose Preference Test,% preference,mice,1,1,0
+9,"Mahmoud, M.",2017,4,10,6,6,1.261,0.657,Sucrose Preference Test,% preference,mice,0,0,0
+9,"Mahmoud, M.",2017,4,10,6,6,0.638,0.599,Forced Swim Test,Immobility,mice,0,0,0
+10,"Mahmoud, M.",2017,4,10,6,5,-1.164,0.68,Sucrose Preference Test,% preference,mice,1,0,1
+10,"Mahmoud, M.",2017,4,10,6,5,-1.806,0.773,Forced Swim Test,Immobility,mice,1,0,1
+11,"Majidi, J.",2016,35,30,9,9,-0.34,0.476,Sucrose Preference Test,% preference,mice,0,0,0
+11,"Majidi, J.",2016,35,30,9,9,-0.378,0.477,Tail Suspension Test,Immobility,mice,0,0,0
+11,"Majidi, J.",2016,35,30,9,9,-0.902,0.501,Forced Swim Test,Immobility,mice,0,0,0
+12,"Majidi, J.",2016,35,30,9,9,-1.04,0.511,Sucrose Preference Test,% preference,mice,1,0,1
+12,"Majidi, J.",2016,35,30,9,9,-1.041,0.511,Tail Suspension Test,Immobility,mice,1,0,1
+12,"Majidi, J.",2016,35,30,9,9,-1.58,0.558,Forced Swim Test,Immobility,mice,1,0,1
+13,"McKim, D.",2016,6,90,6,6,-0.297,0.582,Social Interaction,Interaction,mice,1,1,0
+14,"Molina-Hernandez, M.",2008a,1,63.3,21,7,-1.002,0.46,Forced Swim Test,Immobility,rat,0,0,0
+15,"Molina-Hernandez, M.",2008b,1,55,14,7,-0.979,0.492,Forced Swim Test,Immobility,rat,0,0,0
+16,"Nagpal, K. ",2013,1,100,12,6,-1.382,0.564,Tail Suspension Test,Immobility,mice,0,0,0
+16,"Nagpal, K. ",2013,1,100,12,6,-0.44,0.507,Forced Swim Test,Immobility,mice,0,0,0
+17,"Rinwa, P.",2013,14,37.5,24,12,-1.319,0.39,Open Field Test,Locomotion (# of sections crossed),rat,1,0,1
+17,"Rinwa, P.",2013,14,37.5,24,12,-1.398,0.394,Forced Swim Test,Immobility,rat,1,0,1
+18,"Rinwa, P.",2013,14,25,12,12,-1.859,0.503,Open Field Test,Locomotion (# of sections crossed),rat,1,0,1
+18,"Rinwa, P.",2013,14,25,12,12,-2.356,0.552,Forced Swim Test,Immobility,rat,1,0,1
+19,"Rinwa, P.",2013,14,25,12,12,-1.471,0.47,Open Field Test,Locomotion (# of sections crossed),rat,1,0,1
+19,"Rinwa, P.",2013,14,25,12,12,-2.584,0.577,Forced Swim Test,Immobility,rat,1,0,1
+20,"Saravi, S.",2016a,1,93.3,18,6,-5.571,0.998,Forced Swim Test,Immobility,mice,1,0,1
+20,"Saravi, S.",2016a,1,93.3,18,6,-1.557,0.532,Tail Suspension Test,Immobility,mice,1,0,1
+21,"Saravi, S.",2016b,1,93.3,18,6,-4.421,0.842,Forced Swim Test,Immobility,rat,1,0,1
+22,Singh B.,2017,30,100,6,6,-2.251,0.805,Forced Swim Test,Immobility,mice,1,1,0
+23,Singh T.,2016,15,40,6,6,-5.998,1.602,Forced Swim Test,Immobility,mice,1,0,1
+23,Singh T.,2016,15,40,6,6,-2.944,0.933,Tail Suspension Test,Immobility,mice,1,0,1
+24,Singh T.,2016,15,23.3,18,6,-2.103,0.577,Forced Swim Test,Immobility,mice,1,0,1
+24,Singh T.,2016,15,23.3,18,6,-2.088,0.575,Tail Suspension Test,Immobility,mice,1,0,1
+25,"Tong, L.",2017,42,40,12,12,-0.194,0.409,Tail Suspension Test,Immobility,mice,0,0,0
+25,"Tong, L.",2017,42,40,12,12,0.461,0.415,Forced Swim Test,Immobility,mice,0,0,0
+25,"Tong, L.",2017,42,40,12,12,-0.721,0.424,Sucrose Preference Test,% preference,mice,0,0,0
+26,"Tong, L.",2017,42,40,12,12,-1.925,0.509,Tail Suspension Test,Immobility,mice,1,0,1
+26,"Tong, L.",2017,42,40,12,12,-1.145,0.446,Forced Swim Test,Immobility,mice,1,0,1
+26,"Tong, L.",2017,42,40,12,12,-1.986,0.515,Sucrose Preference Test,% preference,mice,1,0,1
+27,"Tong, L.",2017,28,40,12,12,0.153,0.409,Tail Suspension Test,Immobility,mice,0,0,0
+27,"Tong, L.",2017,28,40,12,12,-0.388,0.413,Forced Swim Test,Immobility,mice,0,0,0
+27,"Tong, L.",2017,28,40,12,12,0.309,0.411,Sucrose Preference Test,% preference,mice,0,0,0
+28,"Tong, L.",2017,28,40,12,12,-1.222,0.452,Tail Suspension Test,Immobility,mice,1,0,1
+28,"Tong, L.",2017,28,40,12,12,-0.911,0.433,Forced Swim Test,Immobility,mice,1,0,1
+28,"Tong, L.",2017,28,40,12,12,-1.998,0.516,Sucrose Preference Test,% preference,mice,1,0,1
+29,"Tong, L.",2017,20,40,12,12,0.769,0.426,Tail Suspension Test,Immobility,mice,0,0,0
+29,"Tong, L.",2017,20,40,12,12,-0.286,0.411,Forced Swim Test,Immobility,mice,0,0,0
+29,"Tong, L.",2017,20,40,12,12,0.443,0.414,Sucrose Preference Test,% preference,mice,0,0,0
+30,"Tong, L.",2017,20,40,12,12,-1.421,0.466,Tail Suspension Test,Immobility,mice,1,0,1
+30,"Tong, L.",2017,20,40,12,12,-2.117,0.528,Forced Swim Test,Immobility,mice,1,0,1
+30,"Tong, L.",2017,20,40,12,12,-2.299,0.546,Sucrose Preference Test,% preference,mice,1,0,1
+31,"Wang, H.-T.",2017,7,50,8,8,-1.478,0.584,Forced Swim Test,Immobility,rat,0,0,0
+31,"Wang, H.-T.",2017,7,50,8,8,-0.412,0.507,Sucrose Preference Test,% preference,rat,0,0,0
+32,"Wang, H.-T.",2017,7,50,9,9,-1.808,0.582,Forced Swim Test,Immobility,rat,1,0,1
+32,"Wang, H.-T.",2017,7,50,9,9,-1.48,0.548,Sucrose Preference Test,% preference,rat,1,0,1
+33,"Wong, M.-L.",2016,21,5,12,12,0.63,0.42,Forced Swim Test,Immobility,mice,0,0,0
+34,"Wong, M.-L.",2016,21,5,15,15,-0.842,0.383,Forced Swim Test,Immobility,mice,1,1,0
+35,"Xu, N.",2017,15,40,12,12,-0.392,0.413,Forced Swim Test,Immobility,rat,0,0,0
+35,"Xu, N.",2017,15,40,12,12,0.613,0.42,Sucrose Preference Test,% preference,rat,0,0,0
+36,"Xu, N.",2017,15,40,12,12,-1.193,0.45,Forced Swim Test,Immobiltiy,rat,1,1,0
+36,"Xu, N.",2017,15,40,12,12,-1.102,0.444,Sucrose Preference Test,% preference,rat,1,1,0
+37,Zheng L.-S.,2015,37,50,10,10,0.056,0.447,Tail Suspension Test,Immobility,mice,0,0,0
+37,Zheng L.-S.,2015,37,50,10,10,0.094,0.448,Forced Swim Test,Immobility,mice,0,0,0
+38,Zheng L.-S.,2015,37,50,10,10,-1.165,0.492,Tail Suspension Test,Immobility,mice,1,1,0
+38,Zheng L.-S.,2015,37,50,10,10,-1.188,0.494,Forced Swim Test,Immobility,mice,1,1,0
+39,Zheng X.,2014,3,30,6,6,-0.984,0.627,Sucrose Preference Test,% preference,rat,1,1,0
