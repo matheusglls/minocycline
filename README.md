@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/1214288611.svg)](https://doi.org/10.5281/zenodo.19642432)
 [![OSF](https://img.shields.io/badge/OSF-q7uyf-blue)](https://osf.io/q7uyf)
+
 This repository contains the source files, input datasets, and rendered HTML reports used in the direct replication of a published preclinical systematic review and meta-analysis on the antidepressant-like effects of minocycline in rodents.
 
 The repository currently includes two main reports:
