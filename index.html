@@ -1,44 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Replication reports</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Replication of Reis et al. (2019)</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      max-width: 800px;
-      line-height: 1.6;
+    :root {
+      --bg: #ffffff;
+      --text: #222222;
+      --muted: #666666;
+      --border: #dddddd;
+      --panel: #fafafa;
+      --link: #2c7fb8;
+      --link-hover: #1f5f89;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+
+    .header {
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    .eyebrow {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
     h1 {
-      margin-bottom: 0.5rem;
+      margin: 0 0 14px 0;
+      font-size: 2rem;
+      line-height: 1.25;
+      font-weight: 700;
     }
-    ul {
-      padding-left: 1.2rem;
+
+    .subtitle {
+      margin: 0;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 1rem;
     }
-    li {
-      margin: 0.8rem 0;
+
+    .intro {
+      max-width: 780px;
+      margin-bottom: 36px;
+      color: #333333;
     }
-    a {
+
+    .intro p {
+      margin: 0 0 14px 0;
+    }
+
+    .section-title {
+      margin: 0 0 18px 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.1rem;
+      line-height: 1.3;
+    }
+
+    .card p {
+      margin: 0 0 16px 0;
+      color: var(--muted);
+      font-size: 0.97rem;
+    }
+
+    .card a {
+      display: inline-block;
       text-decoration: none;
+      color: var(--link);
+      font-weight: 600;
     }
-    a:hover {
+
+    .card a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 44px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .links {
+      margin-top: 8px;
+    }
+
+    .links a {
+      color: var(--link);
+      text-decoration: none;
+      margin-right: 16px;
+    }
+
+    .links a:hover {
+      color: var(--link-hover);
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>Replication of Reis et al. (2019)</h1>
-  <p>Select a report:</p>
+  <main class="page">
+    <header class="header">
+      <div class="eyebrow">Replication reports</div>
+      <h1>Replication of Reis et al. (2019)</h1>
+      <p class="subtitle">
+        Rendered reports and supporting outputs from a direct replication of a published
+        preclinical systematic review and meta-analysis on minocycline’s antidepressant-like
+        effects in rodents.
+      </p>
+    </header>
 
-  <ul>
-    <li>
-      <a href="meta_analyses_main_report.html">Main meta-analyses report</a>
-    </li>
-    <li>
-      <a href="risk_of_bias_report.html">Risk-of-bias report</a>
-    </li>
-  </ul>
+    <section class="intro">
+      <p>
+        This project examines how far the original review can be reconstructed from the
+        published record, including study identification, quantitative synthesis, and
+        risk-of-bias assessment.
+      </p>
+      <p>
+        The materials are presented as two separate reports to make navigation easier:
+        one focuses on the main meta-analytic analyses and sensitivity checks, and the
+        other focuses on comparison of SYRCLE risk-of-bias judgements between the original
+        review and the direct replication.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="section-title">Available reports</h2>
+
+      <div class="cards">
+        <article class="card">
+          <h2>Main meta-analyses report</h2>
+          <p>
+            Primary direct replication, computational reproduction, sensitivity analyses,
+            funnel plots, Egger regressions, and leave-one-out analyses.
+          </p>
+          <a href="meta_analyses_main_report.html">Open report</a>
+        </article>
+
+        <article class="card">
+          <h2>Risk-of-bias report</h2>
+          <p>
+            Comparison of SYRCLE risk-of-bias judgements between the original review and
+            the direct replication, including paired agreement analyses.
+          </p>
+          <a href="risk_of_bias_report.html">Open report</a>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>Repository landing page for rendered replication outputs.</div>
+      <div class="links">
+        <a href="README.md">README</a>
+      </div>
+    </footer>
+  </main>
 </body>
 </html>
