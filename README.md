@@ -1,4 +1,4 @@
-# Replication of Reis et al. (2019): main reports and supporting data
+# CAMARADES Reproducibility Challenge: Replication of Reis (2019) by Gallas-Lopes et al.
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.19642432-blue)](https://doi.org/10.5281/zenodo.19642432)
 
